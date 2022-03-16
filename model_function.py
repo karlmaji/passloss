@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from fitter import Fitter
 
-def fit_model(distance_m,Receive_Power_dBm,path_distance,path_Loss):
+def fit_model(distance_m,Receive_Power_dBm,path_distance,path_Loss,kernel_size=3):
         """
         distance_m : list or numpy with shape of (None,)
         Receive_Power_dBm:list or numpy with shape of (None,)
@@ -20,7 +20,7 @@ def fit_model(distance_m,Receive_Power_dBm,path_distance,path_Loss):
 
         distance_log10 = np.log10(distance_m)
         #平滑处理
-        kernel_size = 1
+        kernel_size = kernel_size
         Power_AfterSmooth = np.convolve(Receive_Power_dBm,np.ones((kernel_size,))/kernel_size ,mode ='valid')
         distance_log10 = distance_log10[:len(Power_AfterSmooth)]
         assert len(distance_log10)==len(Power_AfterSmooth),'平滑后数据长度不等'
@@ -39,16 +39,9 @@ def fit_model(distance_m,Receive_Power_dBm,path_distance,path_Loss):
         fits.fit()
         best_distribution_dict = fits.get_best(method='sumsquare_error')
         distribution_name , distribution_param = best_distribution_dict.popitem()
-
-        
         # PL = 10nlog(d/d0) +X
         #predict = path_Loss + -n_10 * np.log10(distance_m / path_distance)    + X_Normal
-        '''    
-        # 画图
-        plt.plot(distance_log10 , predict,'b',label= '预测数据')
-        plt.plot(distance_log10,tabel.iloc[:,2] ,'pink',label='实际数据')
-        plt.legend(loc='upper right')#绘制曲线图例,信息来自类型label
-        '''
+
         def model_func(x):
             '''
             input x is a numpy.ndarry
@@ -58,7 +51,7 @@ def fit_model(distance_m,Receive_Power_dBm,path_distance,path_Loss):
                 X_Normal = np.random.normal(*distribution_param,size = len(x))
             else:
                 # rayleigh
-                X_Normal = np.random.rayleigh(*distribution_param,size=len(x))
+                X_Normal = np.random.rayleigh(distribution_param,size=len(x))
             # PL = 10nlog(d/d0) +X
             y = path_Loss + -n_10 * np.log10(x / path_distance)    + X_Normal
             return y

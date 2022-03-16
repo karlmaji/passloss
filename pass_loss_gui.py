@@ -59,6 +59,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.pushButton_3.clicked.connect(self.predict)
 
     def load_date_from_csv(self):
+
         try:
             fileName , fileType = QtWidgets.QFileDialog.getOpenFileName(self, "选取文件", os.getcwd(),
             "csv(*csv);;excel(*xls *xlsx)")
@@ -74,25 +75,26 @@ class GUI(QtWidgets.QMainWindow):
             self.distance_m = distance_m
             self.Receive_Power_dBm = Receive_Power_dBm
             QtWidgets.QMessageBox.information(self, "数据读入成功", f"共读入{len(self.distance_m)}行数据")
+
     def creat_model(self):
         path_distance = self.ui.textEdit.toPlainText()
         path_loss = self.ui.textEdit_2.toPlainText()
+
         try:
             path_distance = float(path_distance)
             path_loss = float(path_loss)
             self.model_result = fit_model(self.distance_m,self.Receive_Power_dBm,path_distance,path_loss)
-        except ValueError :
+        except ValueError:
             QtWidgets.QMessageBox.critical(self, "错误", "请确保输入数据格式正确")
         except AttributeError:
             QtWidgets.QMessageBox.critical(self, "错误", "请先导入数据")
         except:
             QtWidgets.QMessageBox.critical(self, "错误", "未知异常")
         else:
-            print(self.model_result['10n'])
-            x = self.distance_m
+            x = self.distance_m.copy()
             x.sort()
-            #print(self.model_result['model_function'](x))
             self.F.plot_(x,self.model_result['model_function'](x))
+            del x
 
     def predict(self):
 
