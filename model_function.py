@@ -165,9 +165,9 @@ def LowAntennaLoss(H,hte,f,d1,d2,A1):
         
     wavelength=3e8/(f*1e6)
     
-    Lbr=10*math.log10(1+(s1*(5+0.3*H)/(4*math.pi*A1*hte/wavelength))**2)+\
-        10*math.log10(1+(s2*(5+0.3*H)/(4*math.pi*A1*hte/wavelength))**2)
-    return Lbr
+    Lbr=10*np.log10(1+(s1*(5+0.3*H)/(4*np.pi*A1*hte/wavelength))**2)+\
+        10*np.log10(1+(s2*(5+0.3*H)/(4*np.pi*A1*hte/wavelength))**2)
+    return wavelength,Lbr
 
 
 def ITUP167Loss(d1,f,Gt,Gr,At,Ar,ht,hr,NO,dN,hs,hb,p):
@@ -210,8 +210,8 @@ def ITUP167Loss(d1,f,Gt,Gr,At,Ar,ht,hr,NO,dN,hs,hb,p):
         Yp=(-0.035*NO*np.exp(-h01/hb)*(-math.log10((100-p)/50)**0.67))
     #对流层散射传输损耗预测中值    
     Lbs1=(F+22**math.log10(f)+35**math.log10(A1)+17**math.log10(d1)+Lc-Yp)
-    
-    return Lbs1
+     
+    return np.asarray(Lbs1, float)
 
 
 
@@ -277,7 +277,7 @@ def CCIRLOSS(f,A,d,r0,F0,H1,H2,Lg,p):
     r=np.array([0.33,0.27,0.32,0.27,0.27,0.27,0.27])
 
     #计算 L50
-    Ln50=30*math.log10(f)+30*math.log10(1000*A)+10*math.log10(d)+20*math.log10(5+r[r0]*H1)+4.343*r[r0]*H2+Lg+F[F0]
+    Ln50=30*np.log10(f)+30*np.log10(1000*A)+10*np.log10(d)+20*np.log10(5+r[r0]*H1)+4.343*r[r0]*H2+Lg+F[F0]
     
     #针对不同气候区计算Y90
     if(F0==1 or F0==4 or F0==5):
