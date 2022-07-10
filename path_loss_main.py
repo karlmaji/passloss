@@ -5,7 +5,7 @@ import os
 import numpy as np
 import pandas as pd
 from model_function import *
-
+import json
 import matplotlib
 matplotlib.use("Qt5Agg")  # 声明使用QT5
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -68,6 +68,7 @@ class GUI(QtWidgets.QMainWindow):
         doubleValidator = QtGui.QDoubleValidator()
         for m in self.findChildren(QtWidgets.QLineEdit):
             m.setValidator(doubleValidator)
+        
 
         self.ui.pushButton_4.clicked.connect(self.load_date_from_csv)
 
@@ -76,6 +77,49 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.pushButton_3.clicked.connect(self.predict)
         self.ui.pushButton_5.clicked.connect(self.Tab2_click)
         self.parameters = {}
+
+        """
+        读入历史数据
+        """
+        if os.path.exists('parameters.json'):
+            with open('parameters.json',"r") as f:
+                param_dict=json.load(f)
+        self.show_data_from_dict(param_dict)
+
+    def show_data_from_dict(self,param_dict):
+        self.ui.lineEdit.setText(str(param_dict['Yh1']))
+        self.ui.lineEdit_2.setText(str(param_dict['Yh2']))
+        self.ui.lineEdit_3.setText(str(param_dict['y10']))
+        self.ui.lineEdit_5.setText(str(param_dict['y20']))
+        self.ui.lineEdit_6.setText(str(param_dict['H']))
+        self.ui.lineEdit_12.setText(str(param_dict['hte']))
+        self.ui.lineEdit_4.setText(str(param_dict['f']))
+        self.ui.lineEdit_8.setText(str(param_dict['A1']))
+        self.ui.lineEdit_22.setText(str(param_dict['d1']))
+        self.ui.lineEdit_13.setText(str(param_dict['d2']))
+        self.ui.lineEdit_14.setText(str(param_dict['d']))
+        self.ui.lineEdit_7.setText(str(param_dict['Gt']))
+        self.ui.lineEdit_9.setText(str(param_dict['Gr']))
+        self.ui.lineEdit_10.setText(str(param_dict['At']))
+        self.ui.lineEdit_11.setText(str(param_dict['Ar']))
+        self.ui.lineEdit_24.setText(str(param_dict['ht']))
+        self.ui.lineEdit_26.setText(str(param_dict['hr']))
+        self.ui.lineEdit_15.setText(str(param_dict['N0']))
+        self.ui.lineEdit_23.setText(str(param_dict['dN']))
+        self.ui.lineEdit_25.setText(str(param_dict['hs']))
+        self.ui.lineEdit_16.setText(str(param_dict['hb']))
+        self.ui.lineEdit_17.setText(str(param_dict['Lg']))
+        self.ui.lineEdit_21.setText(str(param_dict['H1']))
+        self.ui.lineEdit_20.setText(str(param_dict['H2']))
+        self.ui.lineEdit_19.setText(str(param_dict['p']))
+        self.ui.lineEdit_64.setText(str(param_dict['A']))
+        self.ui.lineEdit_18.setText(str(param_dict['a']))
+        self.ui.comboBox.setCurrentIndex(param_dict['r0'])
+        self.ui.comboBox_3.setCurrentIndex(param_dict['F0'])
+
+
+
+
 
     def load_date_from_csv(self):
 
@@ -137,6 +181,7 @@ class GUI(QtWidgets.QMainWindow):
         """
         从tab2界面中读入所有参数
         """
+
         param_dict = {
             "Yh1":float(self.ui.lineEdit.text()) if self.ui.lineEdit.text()!='' else 1. ,
             "Yh2":float(self.ui.lineEdit_2.text()) if self.ui.lineEdit_2.text()!='' else 1.,
@@ -150,7 +195,7 @@ class GUI(QtWidgets.QMainWindow):
             "d2":float(self.ui.lineEdit_13.text()) if self.ui.lineEdit_13.text()!='' else 1.,
             "d":float(self.ui.lineEdit_14.text()) if self.ui.lineEdit_14.text()!='' else 1.,
             "r0":self.ui.comboBox.currentIndex(),
-            "F0":self.ui.comboBox.currentIndex(),
+            "F0":self.ui.comboBox_3.currentIndex(),
             "Gt":float(self.ui.lineEdit_7.text()) if self.ui.lineEdit_7.text()!='' else 1.,
             "Gr":float(self.ui.lineEdit_9.text()) if self.ui.lineEdit_9.text()!='' else 1.,
             "At":float(self.ui.lineEdit_10.text()) if self.ui.lineEdit_10.text()!='' else 1.,
@@ -168,13 +213,21 @@ class GUI(QtWidgets.QMainWindow):
             "A":float(self.ui.lineEdit_64.text()) if self.ui.lineEdit_64.text()!='' else 1.,
             "a":float(self.ui.lineEdit_18.text()) if self.ui.lineEdit_18.text()!='' else 1.,
         }
+        parameters_json = json.dumps(param_dict,sort_keys=False,indent=4,separators=(',',':'))
+        with open('parameters.json','w+') as f:
+            f.write(parameters_json)
+        
+
+
+
+
         self.parameters.update(param_dict)
+
         del param_dict
 
     def Tab2_click(self):
         #读取数据
         self.load_data_from_tab2()
-
         # out
         self.Lah_Lbr_Lbs_Ln_out()
 
@@ -215,7 +268,6 @@ class GUI(QtWidgets.QMainWindow):
             self.parameters['hb'],
             self.parameters['p'],
             )
-
         Ln = CCIRLOSS(
                 self.parameters['f'],
                 self.parameters['A'],

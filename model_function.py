@@ -305,7 +305,7 @@ def CCIRLOSS(f,A,d,r0,F0,H1,H2,Lg,p):
         return Ln
     else:
         #p<50 
-        Ln=2*Ln50-CCIRLOSS(f,A,d,r0,H1,H2,Lg,F0,100-p)
+        Ln=2*Ln50-CCIRLOSS(f,A,d,r0,F0,H1,H2,Lg,100-p)
         return Ln
 
 
